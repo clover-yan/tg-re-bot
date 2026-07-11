@@ -62,7 +62,7 @@ async def re_command(update: Update,
 		else:
 			mention_md = escape_markdown(chat.title or _i18n("group", sender.language_code), version=2)
 		if title:
-			mention_md += f" ({title})"
+			mention_md += f" \\({title}\\)"
 	else:
 		sender_name = escape_markdown(sender.full_name or _i18n("user", sender.language_code), version=2)
 		mention_md = f"[{sender_name}](tg://user?id={sender.id})"
