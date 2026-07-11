@@ -113,21 +113,11 @@ async def re_command(update: Update,
 		_schedule_delete(warning)
 		return
 
-	reply_to = reply.reply_to_message.message_id if reply.reply_to_message else None
-
-	try:
-		await context.bot.send_message(
-		    chat_id=message.chat_id,
-		    text=f"{mention_md}: {replied_md}",
-		    parse_mode="MarkdownV2",
-		    reply_to_message_id=reply_to,
-		)
-	except Exception:
-		await context.bot.send_message(
-		    chat_id=message.chat_id,
-		    text=f"{mention_md}: {replied_md}",
-		    parse_mode="MarkdownV2",
-		)
+	await context.bot.send_message(
+	    chat_id=message.chat_id,
+	    text=f"{mention_md}: {replied_md}",
+	    parse_mode="MarkdownV2",
+	)
 
 	try:
 		await message.delete()
