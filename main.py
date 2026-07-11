@@ -21,6 +21,19 @@ if not BOT_TOKEN:
 	raise ValueError(
 	    "BOT_TOKEN is not set in environment variables or .env file")
 
+
+def _schedule_delete(message, delay: float = 5.0) -> None:
+
+	async def _delete_later() -> None:
+		await asyncio.sleep(delay)
+		try:
+			await message.delete()
+		except Exception:
+			pass
+
+	asyncio.create_task(_delete_later())
+
+
 _LOCALE = {
     "user": {
         "zh-hans": "用户",
@@ -65,8 +78,9 @@ async def re_command(update: Update,
 
 	reply = message.reply_to_message
 	if not reply:
-		await message.reply_text(
+		warning = await message.reply_text(
 		    _i18n("not_replying", message.from_user.language_code))
+		_schedule_delete(warning)
 		return
 
 	sender = message.from_user
@@ -94,8 +108,9 @@ async def re_command(update: Update,
 	replied_md = reply.text_markdown_v2 or reply.caption_markdown_v2 or ""
 
 	if not replied_md:
-		await message.reply_text(
+		warning = await message.reply_text(
 		    _i18n("no_text", message.from_user.language_code))
+		_schedule_delete(warning)
 		return
 
 	reply_to = reply.reply_to_message.message_id if reply.reply_to_message else None
