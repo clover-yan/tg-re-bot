@@ -11,19 +11,19 @@ os.environ.pop("ALL_PROXY", None)
 os.environ.pop("all_proxy", None)
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO)
+	format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+	level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 if not BOT_TOKEN:
 	raise ValueError(
-	    "BOT_TOKEN is not set in environment variables or .env file")
+		"BOT_TOKEN is not set in environment variables or .env file")
 
 
 async def re_command(update: Update,
-                     context: ContextTypes.DEFAULT_TYPE) -> None:
+					 context: ContextTypes.DEFAULT_TYPE) -> None:
 	message = update.effective_message
 	if not message:
 		return
@@ -37,8 +37,15 @@ async def re_command(update: Update,
 	if not sender:
 		return
 
-	sender_name = escape_markdown(sender.full_name or "用户", version=2)
-	mention_md = f"[{sender_name}](tg://user?id={sender.id})"
+	if sender.id == 1087968824 and message.sender_chat:
+		chat = message.sender_chat
+		if chat.username:
+			mention_md = f"@{chat.username}"
+		else:
+			mention_md = escape_markdown(chat.title or "群组", version=2)
+	else:
+		sender_name = escape_markdown(sender.full_name or "用户", version=2)
+		mention_md = f"[{sender_name}](tg://user?id={sender.id})"
 
 	replied_md = reply.text_markdown_v2 or reply.caption_markdown_v2 or ""
 
@@ -46,9 +53,10 @@ async def re_command(update: Update,
 		await message.reply_text("被回复的消息没有文字内容")
 		return
 
-	await message.reply_text(
-	    f"{mention_md}: {replied_md}",
-	    parse_mode="MarkdownV2",
+	await context.bot.send_message(
+		chat_id=message.chat_id,
+		text=f"{mention_md}: {replied_md}",
+		parse_mode="MarkdownV2",
 	)
 
 	try:
