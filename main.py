@@ -21,6 +21,23 @@ if not BOT_TOKEN:
 	raise ValueError(
 		"BOT_TOKEN is not set in environment variables or .env file")
 
+_LOCALE = {
+    "user": {"zh-hans": "用户", "zh-hant": "用戶", "en": "User"},
+    "group": {"zh-hans": "群组", "zh-hant": "群組", "en": "Group"},
+}
+
+
+def _i18n(key: str, lang: str | None) -> str:
+    if not lang:
+        return _LOCALE[key]["zh-hans"]
+    if lang.startswith("zh"):
+        if "hant" in lang.replace("-", "").lower():
+            return _LOCALE[key]["zh-hant"]
+        if "tw" in lang.lower() or "hk" in lang.lower():
+            return _LOCALE[key]["zh-hant"]
+        return _LOCALE[key]["zh-hans"]
+    return _LOCALE[key]["en"]
+
 
 async def re_command(update: Update,
 					 context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -39,12 +56,15 @@ async def re_command(update: Update,
 
 	if sender.id == 1087968824 and message.sender_chat:
 		chat = message.sender_chat
+		title = escape_markdown(message.author_signature, version=2) if message.author_signature else None
 		if chat.username:
-			mention_md = f"@{chat.username}"
+			mention_md = f"[{escape_markdown(chat.title or _i18n("group", sender.language_code), version=2)}]({chat.username})"
 		else:
-			mention_md = escape_markdown(chat.title or "群组", version=2)
+			mention_md = escape_markdown(chat.title or _i18n("group", sender.language_code), version=2)
+		if title:
+			mention_md += f" ({title})"
 	else:
-		sender_name = escape_markdown(sender.full_name or "用户", version=2)
+		sender_name = escape_markdown(sender.full_name or _i18n("user", sender.language_code), version=2)
 		mention_md = f"[{sender_name}](tg://user?id={sender.id})"
 
 	replied_md = reply.text_markdown_v2 or reply.caption_markdown_v2 or ""
