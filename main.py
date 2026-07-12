@@ -107,22 +107,30 @@ async def re_command(update: Update,
 
 	replied_md = reply.text_markdown_v2 or reply.caption_markdown_v2 or ""
 
-	if not replied_md:
+	if replied_md:
+		await context.bot.send_message(
+		    chat_id=message.chat_id,
+		    text=f"{mention_md}: {replied_md}",
+		    parse_mode="MarkdownV2",
+		)
+
+		_schedule_delete(message, delay=0)
+	elif reply.sticker:
+		await context.bot.send_message(
+		    chat_id=message.chat_id,
+		    text=f"{mention_md}:",
+		    parse_mode="MarkdownV2",
+		)
+		await context.bot.send_sticker(
+		    chat_id=message.chat_id,
+		    sticker=reply.sticker.file_id,
+		)
+
+		_schedule_delete(message, delay=0)
+	else:
 		warning = await message.reply_text(
 		    _i18n("no_text", message.from_user.language_code))
 		_schedule_delete(warning)
-		return
-
-	await context.bot.send_message(
-	    chat_id=message.chat_id,
-	    text=f"{mention_md}: {replied_md}",
-	    parse_mode="MarkdownV2",
-	)
-
-	try:
-		await message.delete()
-	except Exception:
-		pass
 
 
 def main() -> None:
