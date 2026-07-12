@@ -93,7 +93,7 @@ async def re_command(update: Update,
 		    message.author_signature,
 		    version=2) if message.author_signature else None
 		if chat.username:
-			mention_md = f'[{escape_markdown(chat.title or _i18n("group", sender.language_code), version=2)}]({chat.username})'
+			mention_md = f'[{escape_markdown(chat.title or _i18n("group", sender.language_code), version=2)}](https://t.me/{chat.username})'
 		else:
 			mention_md = escape_markdown(
 			    chat.title or _i18n("group", sender.language_code), version=2)
